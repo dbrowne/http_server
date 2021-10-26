@@ -3,7 +3,7 @@
 //! Quick and dirty example
 //! -p port #
 //! Environment variables are
-//! CLIENT_PORT
+//! SERVER_PORT
 //! Hard coded localhost 127.0.0.1
 //! Not creating a dependency on the ROCKET_ environment vars.
 
@@ -11,9 +11,7 @@
 #[macro_use] extern crate rocket;
 extern crate chrono;
 
-use chrono::offset::Utc;
-use chrono::DateTime;
-use std::time::{SystemTime};
+use chrono::{Local, DateTime};
 use git_version::git_version;
 use std::net::{IpAddr,Ipv4Addr};
 use structopt::StructOpt;
@@ -23,13 +21,12 @@ use rocket::Config;
 const GIT_VERSION: &str = git_version!();
 #[get("/")]
 fn index() -> String {
-    let system_time = SystemTime::now();
-    let datetime: DateTime<Utc> = system_time.into();
-    let  host_name = match hostname::get(){
-        Err(er) => panic!("Can't retrieve the system hostname: {}",er),
-        Ok(host_name) =>host_name
+    let datetime: DateTime<Local> = Local::now();
+    let host_name = match hostname::get() {
+        Err(er) => panic!("Can't retrieve the system hostname: {}", er),
+        Ok(host_name) => host_name
     };
-    format!("{:?}: {} UTC: version: ->{}<- \n", host_name, datetime.format("%m/%d/%Y: %T"), GIT_VERSION)
+    format!("HOSTNAME: ->{:?}<-: Time: {} LOCAL:  server version: ->{}<- \n", host_name, datetime.format("%m/%d/%Y: %T"), GIT_VERSION)
 }
 
 #[rocket::main]
